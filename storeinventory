@@ -1,122 +1,120 @@
+import java.util.Arrays;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+class Product {
+    String productName;
+    String productID;
+    String category;
+    double price;
+    boolean inStock;
 
-public class StoreInventory {
-    private Map<String, Product> products;
-    private List<String> notifications;
-
-    public StoreInventory() {
-        products = new HashMap<>();
-        notifications = new ArrayList<>();
+    public Product(String productName, String productID, String category, double price) {
+        this.productName = productName;
+        this.productID = productID;
+        this.category = category;
+        this.price = price;
+        this.inStock = true; // New product is initially in stock
     }
 
-    public void createProduct(String productID, String productName, Date expiryDate, int timeDurationForMarkDown) {
-        if (productID == null || productName == null) {
-            System.out.println("ProductID and ProductName are required.");
-            return;
-        }
-
-        if (products.containsKey(productID)) {
-            System.out.println("Product with the same ProductID already exists.");
-            return;
-        }
-
-        if (expiryDate == null) {
-            // Default expiry date is 3 months from the current date
-            expiryDate = new Date(System.currentTimeMillis() + 3L * 30L * 24L * 60L * 60L * 1000L);
-        }
-
-        if (timeDurationForMarkDown == 0) {
-            // Default markdown duration is 6 days before the expiry date
-            timeDurationForMarkDown = 6;
-        }
-
-        Product newProduct = new Product(productID, productName, expiryDate, timeDurationForMarkDown);
-        products.put(productID, newProduct);
-        System.out.println(productName + " with ProductID " + productID + " created successfully.");
+    public boolean isInStock() {
+        return inStock;
     }
 
-    public void checkProductExpiry() {
-        Date currentDate = new Date();
-        for (Product product : products.values()) {
-            if (product.getExpiryDate().before(currentDate)) {
-                String notification = product.getProductName() + " with ProductID " + product.getProductID() + " has expired.";
-                notifications.add(notification);
-                System.out.println(notification);
-            }
-        }
-    }
-
-    public void checkMarkDownProducts() {
-        Date currentDate = new Date();
-        for (Product product : products.values()) {
-            Date markdownDate = new Date(product.getExpiryDate().getTime() - product.getTimeDurationForMarkDown() * 24L * 60L * 60L * 1000L);
-            if (currentDate.after(markdownDate)) {
-                String notification = product.getProductName() + " with ProductID " + product.getProductID() + " needs to be marked down.";
-                notifications.add(notification);
-                System.out.println(notification);
-            }
-        }
-    }
-
-    public void displayNotifications() {
-        if (notifications.isEmpty()) {
-            System.out.println("No notifications available.");
-        } else {
-            System.out.println("Notifications:");
-            for (String notification : notifications) {
-                System.out.println(notification);
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        StoreInventory storeInventory = new StoreInventory();
-
-        storeInventory.createProduct("125", "Chewing Gum", null, 0);
-        storeInventory.createProduct("250", "M&Ms", null, 6);
-        storeInventory.createProduct("425", "Kit Kat", null, 6);
-        storeInventory.createProduct("200", "Snickers", null, 6);
-        storeInventory.createProduct("330", "Skittles", null, 6);
-        storeInventory.createProduct("270", "Bottled water", null, 0);
-        storeInventory.createProduct("325", "Doritos", null, 0);
-        
-        storeInventory.checkProductExpiry();
-        storeInventory.checkMarkDownProducts();
-        storeInventory.displayNotifications();
+    public void setInStock(boolean inStock) {
+        this.inStock = inStock;
     }
 }
 
-class Product {
-    private String productID;
-    private String productName;
-    private Date expiryDate;
-    private int timeDurationForMarkDown;
+class StoreInventory {
+    String[] products;
+    String date;
 
-    public Product(String productID, String productName, Date expiryDate, int timeDurationForMarkDown) {
-        this.productID = productID;
-        this.productName = productName;
-        this.expiryDate = expiryDate;
-        this.timeDurationForMarkDown = timeDurationForMarkDown;
+    Product[] items;
+
+    public StoreInventory() {
+        this.items = new Product[10];
     }
 
-    public String getProductID() {
-        return productID;
+    public String getProductName(String identifier) {
+        for (Product item : items) {
+            if (item != null && item.productID.equals(identifier)) {
+                return item.productName;
+            }
+        }
+        return "Product not found";
     }
 
-    public String getProductName() {
-        return productName;
+    public void addNewProduct(Product newProduct) {
+        // Add a new product to the inventory
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] == null) {
+                items[i] = newProduct;
+                break;
+            }
+        }
     }
 
-    public Date getExpiryDate() {
-        return expiryDate;
+    public void removeProduct(String identifier) {
+        // Remove a product from inventory based on the productID
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] != null && items[i].productID.equals(identifier)) {
+                items[i].setInStock(false);
+                items[i] = null;
+                break;
+            }
+        }
     }
 
-    public int getTimeDurationForMarkDown() {
-        return timeDurationForMarkDown;
+    public boolean orderNewProduct() {
+        // In Stock
+        return true;
+    }
+
+    public void stockProduct(Product product) {
+        // New Product Added
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] == null) {
+                items[i] = product;
+                break;
+            }
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        StoreInventory storeInventory = new StoreInventory();
+
+        // Creating products
+        Product product1 = new Product("Chewing Gum", "125", "Snacks", 1.99);
+        Product product2 = new Product("Snickers", "250", "Candy", 2.49);
+        Product product3 = new Product("M&M's", "425", "Candy", 2.99);
+        Product product4 = new Product("Kit Kat", "200", "Chocolate", 1.99);
+        Product product5 = new Product("Skittles", "330", "Candy", 1.49);
+        Product product6 = new Product("Doritos", "325", "Snacks", 2.99);
+        Product product7 = new Product("Bottled Water", "270", "Beverage", 0.99);
+
+        // Adding products to the store inventory
+        storeInventory.addNewProduct(product1);
+        storeInventory.addNewProduct(product2);
+        storeInventory.addNewProduct(product3);
+        storeInventory.addNewProduct(product4);
+        storeInventory.addNewProduct(product5);
+        storeInventory.addNewProduct(product6);
+        storeInventory.addNewProduct(product7);
+
+        System.out.println("Product Details:");
+        System.out.println("Product Name: " + product1.productName);
+        System.out.println("Product ID: " + product1.productID);
+        System.out.println("Category: " + product1.category);
+        System.out.println("Price: " + product1.price);
+
+        // Checking if the product is in stock
+        System.out.println("Is the product in stock? " + product1.isInStock());
+
+        // Removing a product from inventory
+        storeInventory.removeProduct("125");
+
+        // Checking if the product is in stock after removal
+        System.out.println("Is the product in stock after removal? " + product1.isInStock());
     }
 }
